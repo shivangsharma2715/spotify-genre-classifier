@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (
@@ -17,6 +18,12 @@ from sklearn.metrics import (
 
 st.set_page_config(page_title="Spotify Genre Classifier", page_icon="🎧", layout="wide")
 
+# Resolve paths relative to THIS FILE, not the working directory.
+# This makes the app work regardless of how deep app.py sits in the repo
+# (e.g. if GitHub ends up with a nested folder structure).
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "model")
+
 FEATURE_COLS = [
     'track_popularity', 'danceability', 'energy', 'key', 'loudness', 'mode',
     'speechiness', 'acousticness', 'instrumentalness', 'liveness',
@@ -25,18 +32,18 @@ FEATURE_COLS = [
 TARGET_COL = 'playlist_genre'
 
 MODEL_FILES = {
-    'Logistic Regression': 'model/logistic_regression.joblib',
-    'Decision Tree': 'model/decision_tree.joblib',
-    'kNN': 'model/knn.joblib',
-    'Naive Bayes': 'model/naive_bayes.joblib',
-    'Random Forest (Ensemble)': 'model/random_forest_ensemble.joblib',
+    'Logistic Regression': os.path.join(MODEL_DIR, 'logistic_regression.joblib'),
+    'Decision Tree': os.path.join(MODEL_DIR, 'decision_tree.joblib'),
+    'kNN': os.path.join(MODEL_DIR, 'knn.joblib'),
+    'Naive Bayes': os.path.join(MODEL_DIR, 'naive_bayes.joblib'),
+    'Random Forest (Ensemble)': os.path.join(MODEL_DIR, 'random_forest_ensemble.joblib'),
 }
 
 
 @st.cache_resource
 def load_artifacts():
-    scaler = joblib.load('model/scaler.joblib')
-    label_encoder = joblib.load('model/label_encoder.joblib')
+    scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.joblib'))
+    label_encoder = joblib.load(os.path.join(MODEL_DIR, 'label_encoder.joblib'))
     models = {name: joblib.load(path) for name, path in MODEL_FILES.items()}
     return scaler, label_encoder, models
 
